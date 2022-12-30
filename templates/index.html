@@ -1,7 +1,20 @@
-<!DOCTYPE html>
-<html>
-  <body>
-    <h1>Bienvenido a la app</h1>
-  </body>
-</html>
-            
+{% extends "base.html" %}
+{% block content %}
+  <h1>Bienvenido a la app</h1>
+  <!--{% for id, name in template_recipes.items() %}
+    <p><a href="{{ url_for('recipe', id=id) }}">{{ name }}</a></p>
+  {% endfor %} 
+  <form action="/" method="POST">
+    {{ template_form.hidden_tag() }}
+    <p>{{ template_form.recipe.label }}
+    {{ template_form.recipe() }}</p>
+    <table><tr>
+      {% for btn in template_form.recipe_type %} FOR RATIOFIELD
+      <td>{{ btn() }}</td>
+      <td>{{ btn.label }}</td>
+    {% endfor %}
+    </tr></table>
+    <p>{{ template_form.description.label }}
+    {{ template_form.description() }}</p>
+  </form> -->
+{% endblock %}
