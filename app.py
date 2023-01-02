@@ -1,4 +1,17 @@
-from evaluaciones import db
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
+
+app = Flask(__name__)
+app.config["SECRET_KEY"] = "mysecret"
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///myDB.db' #path to database and its name
+#app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False #to supress warning
+db = SQLAlchemy(app) #database instance
+migrate = Migrate(app, db)
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(128))
 
 #declaring the Book model
 #class Book(db.Model):
@@ -35,7 +48,14 @@ from evaluaciones import db
     #Note the lower case here: 'book.id' instead of 'Book.id'
 #    book_id = db.Column(db.Integer, db.ForeignKey('book.id')) #foreign key column
     #your code here
-#    reviewer_id = db.Column(db.Integer, db.ForeignKey('reader.id'))
+#    reviewer_id = db.Column(db.Integer, db.ForeignKey('reader.id'), cascade = 'all, delete, delete-orphan')
     #get a nice printout for Review objects
 #    def __repr__(self):
 #        return "Review: {} stars: {}".format(self.text, self.stars)
+
+# add datas
+#db.session.add(new_reader1)
+#try:
+#    db.session.commit()
+#except:
+#    db.session.rollback()
