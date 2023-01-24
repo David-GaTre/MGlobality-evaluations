@@ -2,23 +2,65 @@ from flask import Flask
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
-from forms import CommentForm
+from forms import CommentForm, RegistrationForm, LoginForm
 from app import app, db
 from models import *  # Only enlist the used models
 from flask import render_template, request, url_for, redirect, flash
+from flask_login import LoginManager, login_required, login_user, logout_user, current_user
 
-@app.route("/cliente/<int:id>")
+
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+@login_manager.user_loader
+def load_user(user_id):
+  return User.query.get(int(user_id))
+
+@login_manager.unauthorized_handler
+def unauthorized():
+  # do stuff
+  return "Sorry you must be logged in to view this page"
+
+@app.route('/login', methods=['GET','POST'])
+def login():
+  form = LoginForm(csrf_enabled=False)
+  if form.validate_on_submit():
+    user = User.query.filter_by(email=form.email.data).first()
+    if user and user.check_password(form.password.data):
+      login_user(user)
+      render_template('index.html', current_user = user)
+    else:
+      return redirect(url_for('login', _external=True, _scheme='https'))
+  return render_template('login.html', form=form)
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for('index'))
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+
+
+@app.route("/cliente/<int:id>", methods=['GET', 'POST'])
+@login_required
 def client(id):
-    comment_form = CommentForm(csrf_enabled=False)
-    new_id = 2 # Placeholder
-    if comment_form.validate_on_submit():
-      pass
-      # new_comment = comment_form.comment.data
-      # comments[id].append(new_comment)
-      # return redirect(url_for("almacen", id=new_id, _external=True, _scheme="https")) # for redirection those args are needed
-    #review = Review.query.filter_by(id=review_id).first_or_404(description='xd')
+    if request.method == 'POST':
+        comment_form = CommentForm(csrf_enabled=False)
+        new_id = 2 # Placeholder
+        if comment_form.validate_on_submit():
+            pass
+            # new_comment = comment_form.comment.data
+            # comments[id].append(new_comment)
+            # return redirect(url_for("almacen", id=new_id, _external=True, _scheme="https")) # for redirection those args are needed
+            #review = Review.query.filter_by(id=review_id).first_or_404(description='xd')
 
-  #return render_template('cliente.html')
+        return render_template('cliente.html')
+    return login_manager.unauthorized()
 
 #@app.route('/profiles')
 #def profiles():
@@ -67,7 +109,7 @@ def client(id):
 #def dashboard():
 #  form = SongForm()
 #  if request.method == 'POST' and form.validate():
-#    new_song = Song(title=form.title, artist=form.artist, n=1)
+#    new_song = Song(title=form.title.data, artist=form.artist.data, n=1)
 #    db.session.add(new_song)
 #    db.session.commit()
 #  else:
@@ -75,3 +117,14 @@ def client(id):
 #  unpopular_songs = Song.query.order_by(Song.n)  #add the ordering query here
 #  songs = Song.query.all()
 #  return render_template('dashboard.html', songs = songs, unpopular_songs = unpopular_songs, form = form)
+
+# registration route
+#@app.route('/register', methods=['GET', 'POST'])
+#def register():
+#  form = RegistrationForm(csrf_enabled=False)
+#  if form.validate_on_submit():
+#    user = User(username=form.username.data, email=form.email.data)
+#    user.set_password(form.password.data)
+#    db.session.add(user)
+#    db.session.commit()
+#  return render_template('register.html', title='Register', form=form)

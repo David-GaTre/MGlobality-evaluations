@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField, RadioField
-from wtforms.validators import DataRequired
+from wtforms import StringField, SubmitField, TextAreaField, RadioField, PasswordField
+from wtforms.validators import DataRequired, Email, EqualTo
 
 class CommentForm(FlaskForm):
   #### Add a validator argument in the StringField
@@ -16,4 +16,16 @@ class FieldsRequiredForm(FlaskForm):
         render_kw.setdefault("required", True)
       return super().render_field(field, render_kw)
 
-categories = [("recommended","Recommended"), ("tovisit", "Places To Go"), ("visited", "Visited!!!")]
+class RegistrationForm(FlaskForm):
+  username = StringField('Username', validators=[DataRequired()])
+  email = StringField('Email', validators=[DataRequired(), Email()])
+  password = PasswordField('Password', validators=[DataRequired()])  
+  password2 = PasswordField('Repeat Password', validators=[DataRequired(), EqualTo('password')])  
+  submit = SubmitField('Register')
+
+class LoginForm(FlaskForm):
+  email = StringField('Email',
+                      validators=[DataRequired(), Email()])
+  password = PasswordField('Password', validators=[DataRequired()])
+  remember = BooleanField('Remember Me')
+  submit = SubmitField('Login')
